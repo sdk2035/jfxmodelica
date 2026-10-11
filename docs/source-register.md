@@ -18,6 +18,10 @@ The user supplied **https github com robotics.txt**, containing 17 repository UR
 
 The attachment has been consolidated into that catalog rather than copied as another unstructured TXT. The classification is an editorial interpretation of repository metadata; it does not adopt the repositories as dependencies.
 
+## Follow-up reference: Modex Feedback
+
+The user separately requested [sdk2035/modex-feedback](https://github.com/sdk2035/modex-feedback), a fork of [modexai-io/modex-feedback](https://github.com/modexai-io/modex-feedback). It is indexed under [AI-assisted development and feedback references](dependencies/catalog.md#ai-assisted-development-and-feedback-references). GitHub fork metadata and README were checked on 2026-10-11. The catalog now contains the original 17 attachment repositories plus this one follow-up reference; it is not part of the original attachment count.
+
 ## Technical qualifications and editorial changes
 
 - Arcadia/Capella is separated from a generic UML/SysML-profile classification. Its process and modeling language have distinct semantics.

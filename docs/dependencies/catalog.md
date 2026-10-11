@@ -58,6 +58,24 @@ The additional attachment supplied 17 unique repository URLs. All 17 are include
 | --- | --- | --- | --- |
 | [robotics-intelligent-systems/modelica-language-vscode](https://github.com/robotics-intelligent-systems/modelica-language-vscode) | Modelica language support for VS Code | Optional editor extension | Fork of [SimplyDanny/modelica-language-vscode](https://github.com/SimplyDanny/modelica-language-vscode); `master` |
 
+## AI-assisted development and feedback references
+
+This follow-up reference was supplied separately after the original 17-URL attachment.
+
+| Repository | Role | Adoption classification | Provenance / inspected default branch |
+| --- | --- | --- | --- |
+| [sdk2035/modex-feedback](https://github.com/sdk2035/modex-feedback) | Public Modex feedback, issue tracking, support and lightweight documentation covering Modelica tooling and OpenModelica/OMC setup | Reference for future AI-assisted task planning; no runtime dependency adopted | Fork of [modexai-io/modex-feedback](https://github.com/modexai-io/modex-feedback); `main` |
+
+The [repository README](https://github.com/sdk2035/modex-feedback/blob/main/README.md) states that it does not contain the Modex application source code. Its public examples, skills, prompts and MCP resources are described as possible future resources, so their availability is not assumed.
+
+Proposed uses for subsequent AI-assisted tasks:
+
+- Turn a selected public setup/problem report into a bounded, reproducible OpenModelica worker compatibility case.
+- Compare documented workflows and diagnostics with JFXModelica's model/job contracts and record relevant gaps.
+- Reuse the reporting structure—product/tool versions, operating system, configuration, reproduction steps and diagnostics—to organize reviewed task evidence.
+
+Inspect any selected resource and its license before reuse, and record its exact revision. These are planning references, not completed integrations or instructions to contact upstream.
+
 ## Additional technology candidates from the original README
 
 These are separate from the 17-URL attachment and do not add adopted dependencies.
