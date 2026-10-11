@@ -1,50 +1,123 @@
-# JFXModelica Cloud AI: Plataforma Web de Simulación Multifísica e Inteligencia Artificial
+# JFXModelica Cloud AI
 
-**JFXModelica Cloud AI** es una plataforma web *open-source* de modelado, simulación física multifísica y gemelos digitales basada en el lenguaje **Modelica**. Combina entornos de simulación numérica tradicionales con **asistentes de Inteligencia Artificial (LLMs de código abierto)** para automatizar la generación de modelos, la depuración de ecuaciones, el análisis CFD/FEA y la optimización de parámetros en tiempo real desde el navegador.
+JFXModelica is a proposed open-source environment for Modelica-based multiphysics simulation, AI-assisted model authoring and digital-twin workflows. The intended web interface connects engineers to replaceable simulation workers and reviewed model artifacts.
 
----
+**Current status:** architecture and documentation. The repository contains a README, engineering notes and an existing draw.io asset; it does not yet establish an executable cloud platform, native solver connectors or validated AI-generated Modelica code. The diagrams below describe proposed flows.
 
-## 1. Arquitectura de la Plataforma
+## Documentation
 
-* **Core de Simulación (Backend Cloud):**
-  * **OpenModelica / JModelica:** Motor principal para la resolución de sistemas de ecuaciones diferencial-algebraicas (DAEs) de Modelica.
-  * **Integración CAE Open-Source:** Conectores nativos para **OpenFOAM** (CFD) y **CalculiX** (FEA/Estructural)[cite: 2], permitiendo codiseñar componentes mecánicos y fluidodinámicos en bucles de simulación acoplados.
-  * **Dinámica de Vuelo y Control:** Integración con **JSBSim** para modelos de control de vuelo y comportamiento dinámico de aeronaves[cite: 2].
+- [Documentation index](docs/README.md)
+- [Categorized dependency and reference catalog](docs/dependencies/catalog.md)
+- [Consolidated MBSE, physical modeling and CAD handbook](docs/engineering/mbse-and-cad-handbook.md)
+- [Source register and TXT migration map](docs/source-register.md)
+- [Documentation validation](docs/validation.md)
+- [Existing technical diagram](MBSE/CAS/Drawio/especificaciones_tecnicas_JFXModelica.drawio.drawio)
 
-* **Capa de Inteligencia Artificial (Open Source AI Kernel):**
-  * Basado en modelos de lenguaje abiertos (como *Llama 3*, *DeepSeek-Coder* o *CodeLlama*) optimizados para la sintaxis de Modelica, OpenFOAM y scripts de simulación.
-  * Agentes autónomos para la conversión de especificaciones técnicas en diagramas de bloques y código Modelica ejecutable.
+## Scope and capabilities
 
-* **Interfaz de Usuario (Frontend Web Async):**
-  * Interfaz web basada en tecnologías modernas (React/Three.js) para renderizado 3D de cortes esquemáticos, mapas térmicos y flujos de aire en tiempo real[cite: 2].
+| Area | Proposed capability | Acceptance needed before claiming implementation |
+| --- | --- | --- |
+| Model authoring | Text or graphical input, Modelica assembly, AI suggestions | Reviewed model source, library versions and compiler diagnostics |
+| Physical simulation | Modelica DAE simulation; optional CFD/FEA and flight-dynamics workers | Reproducible fixtures, solver versions, units and numerical comparisons |
+| AI assistance | Model proposals, diagnostic explanations and parameter-change suggestions | Source provenance, reviewed equations and independent solver checks |
+| Web visualization | Schematics, 3D scenes, result fields and time-series inspection | Versioned geometry/result mapping and measured browser performance |
+| Parameter studies | Controlled sweeps, optimization and distributed jobs | Bounded parameters, resource limits, convergence and reproducible evidence |
+| FMI interoperability | Import/export and co-simulation through selected FMU tooling | Explicit FMI version, FMU type, platform compatibility and exchange tests |
 
----
+OpenModelica is a candidate for an initial simulation worker. JModelica and other compilers are alternatives to evaluate, rather than simultaneous mandatory backends. OpenFOAM, CalculiX and JSBSim are optional domain integrations. React/Three.js and replaceable language-model endpoints are frontend/AI candidates, not installed dependencies.
 
-## 2. Funcionalidades Principales
+## Proposed architecture
 
-### A. Copiloto de Simulación por IA (Modelica Assistant)
-* **Generación de Código por Lenguaje Natural:** Los ingenieros pueden describir componentes físicos en texto (ej. *"Crea un circuito hidráulico de enfriamiento para el motor del BD-5 con válvula de alivio"*) y la IA genera el código Modelica funcional[cite: 2].
-* **Autocorrección y Diagnóstico de Ecuaciones:** Identificación automática de sistemas sobredeterminados, singularidades o parámetros faltantes antes de la compilación.
+```mermaid
+flowchart TB
+  USER["Engineer"] --> UI["Web editor and result viewer"]
+  UI --> API["Job and artifact API"]
+  UI --> AI["AI proposal service"]
+  AI --> REVIEW["Engineering review"]
+  REVIEW --> API
+  subgraph Backend["Controlled simulation boundary"]
+    API --> VALIDATE{"Model, units and libraries valid?"}
+    VALIDATE -->|No| DIAG["Diagnostics and rejected artifact"]
+    VALIDATE -->|Yes| JOB["Versioned job manifest"]
+    JOB --> WORKER["Selected Modelica worker"]
+    WORKER --> RESULTS["Results and provenance store"]
+    JOB --> OPTIONAL["Optional CFD, FEA or flight worker"]
+    OPTIONAL --> RESULTS
+  end
+  RESULTS --> UI
+  DIAG --> UI
+```
 
-### B. Simulación Multifísica Cloud Integrada
-* **Corte Esquemático Digital Avanzado:** Visualización interactiva en 3D que superpone datos de **OpenFOAM** (velocidad de flujo), **CalculiX** (estrés estructural en soportes del motor) y telemetría de **JSBSim** sobre el modelo del vehículo[cite: 2].
-* **Simulación Distribuida en la Nube:** Ejecución de barridos de parámetros (Parametric Sweeps) e incertidumbres en contenedores paralelos en la nube sin consumir recursos locales.
+Modelica workers own equation compilation and numerical execution. AI suggestions pass through engineering review and compiler validation. Multiphysics coupling needs defined exchange variables, units, time synchronization and convergence checks; connecting worker names does not establish a working coupled solver.
 
-### C. Generación de Gemelos Digitales (FMI/FMU)
-* Exportación e importación estándar de **Functional Mock-up Units (FMU)** bajo el estándar FMI (Functional Mock-up Interface) para co-simulación con otros entornos web o de control en tiempo real.
+## Model-to-result workflow
 
----
+```mermaid
+flowchart LR
+  NEED["Requirements and physical assumptions"] --> PROPOSE["Draft Modelica model"]
+  PROPOSE --> REVIEW{"Engineer accepts model?"}
+  REVIEW -->|Revise| PROPOSE
+  REVIEW -->|Yes| CHECK{"Compiler and model checks pass?"}
+  CHECK -->|No| DIAG["Diagnostics"]
+  DIAG --> PROPOSE
+  CHECK -->|Yes| RUN["Run versioned simulation"]
+  RUN --> COMPARE{"Reference checks pass?"}
+  COMPARE -->|No| INVESTIGATE["Inspect equations, units and solver"]
+  INVESTIGATE --> PROPOSE
+  COMPARE -->|Yes| ARCHIVE["Archive evidence and visualize"]
+```
 
-## 3. Flujo de Trabajo Típico (Workflow)
+Inputs include model sources, library versions, units, initial conditions, solver configuration and expected behavior. Outputs include diagnostics, numerical results and a run manifest. An equal equation/variable count is only one structural check; it is not proof of physical correctness or numerical solvability.
 
-1. **Definición del Problema (Entrada por IA / Prompt):**
-   El usuario define los requisitos del sistema mediante texto o diagrama de bloques en la interfaz web. La IA sugiere la topología del modelo en lenguaje Modelica.
+## FMI and result exchange
 
-2. **Ensamblaje y Validación (Entorno Gráfico / Editor):**
-   Verificación de ecuaciones y acoplamiento de componentes físicas (térmicas, mecánicas, fluidas). El copiloto IA valida el número de variables y ecuaciones.
+```mermaid
+sequenceDiagram
+  participant E as Engineer
+  participant A as Job API
+  participant W as Modelica worker
+  participant F as FMU adapter
+  participant S as Artifact store
+  E->>A: Reviewed model and configuration
+  A->>W: Validate and compile selected model
+  alt Compilation succeeds
+    W-->>A: Diagnostics and compiled artifact
+    A->>F: Requested FMI version and FMU type
+    F->>F: Check variables, units and platform
+    alt Exchange contract compatible
+      F->>S: FMU, metadata and provenance
+      S-->>E: Inspectable exchange artifact
+    else Incompatible contract
+      F-->>E: Compatibility diagnostics
+    end
+  else Compilation fails
+    W-->>E: Compilation diagnostics
+  end
+```
 
-3. **Simulación y Análisis CFD/FEA (Ejecución Cloud):**
-   Despliegue de solvers de OpenFOAM y CalculiX en la nube[cite: 2]. Los resultados se proyectan sobre el corte esquemático interactivo 3D en el navegador[cite: 2].
+FMU exchange is a planned contract boundary. It must distinguish Model Exchange and Co-Simulation, declare its selected FMI version and retain source/model provenance.
 
-4. **Optimización Autónoma (Post-procesamiento):**
-   La IA analiza las curvas de rendimiento y propone cambios estructurales o de control para optimizar la trayectoria y la eficiencia del diseño.
+## AI-assisted parameter iteration
+
+```mermaid
+flowchart TB
+  BASE["Validated baseline and metrics"] --> SUGGEST["AI proposes bounded parameter changes"]
+  SUGGEST --> REVIEW{"Engineering constraints satisfied?"}
+  REVIEW -->|No| REJECT["Record rejected proposal"]
+  REVIEW -->|Yes| SWEEP["Run reproducible parameter sweep"]
+  SWEEP --> EVALUATE{"Numerical and domain checks pass?"}
+  EVALUATE -->|No| REJECT
+  EVALUATE -->|Yes| DECIDE{"Engineer accepts evidence?"}
+  DECIDE -->|No| REJECT
+  DECIDE -->|Yes| VERSION["Version new model and report"]
+```
+
+## Dependency adoption
+
+The [catalog](docs/dependencies/catalog.md) groups the 17 repositories supplied in the additional TXT and the technology candidates already mentioned in this README. Each entry records its role and adoption status. References and forks are not automatically runtime dependencies.
+
+Before adoption, select a commit/release, review its license and provenance, define an interface and execute a bounded compatibility fixture. Package versions, runtime prerequisites and installation commands will belong to an implementation milestone; none are asserted here.
+
+## Next bounded engineering step
+
+Specify one Modelica model and one simulation-worker contract with units, initial conditions, solver configuration, expected numerical behavior and archived results. Use a reviewed deterministic fixture before adding AI generation, distributed execution or additional physics workers.
