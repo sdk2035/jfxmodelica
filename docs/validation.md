@@ -7,6 +7,7 @@ Reviewed 2026-10-11. This pass validates documentation organization and diagram 
 | Mermaid | Four proposed architecture/workflow diagrams accepted by Mermaid 11.17.2 |
 | Attachment coverage | 17 unique repository URLs; each appears exactly once as a categorized repository entry |
 | Repository provenance | All 17 GitHub metadata records retrieved; default branch and upstream/fork relationships recorded |
+| Follow-up reference | Modex Feedback fork/upstream metadata and README inspected; added once as an AI-assisted planning reference, separate from the 17 attachment entries |
 | TXT migration | Three original Spanish TXT files mapped to named English handbook sections; original blob SHAs and baseline links retained |
 | Citation cleanup | Unresolved `[cite: 2]` markers removed from README |
 | Internal navigation | Markdown file/section links checked against new documents and the retained draw.io path |
